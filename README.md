@@ -10,7 +10,7 @@
 
 Real word experiment of webscraping.
 
-Target: [bebbgrillo.it](https://beppegrillo.it)
+Target: [beppegrillo.it](https://beppegrillo.it)
 
 ### Team
 
