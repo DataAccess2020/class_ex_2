@@ -1,13 +1,13 @@
-page_name <- function(url, dest = "") {
-  if (is.character(url)) {
-    if (dest == "") {
+page_name <- function(url, dest = "") {  #funtion for defining the path and filename from the hostname and the basename (it chops out the path included between the host and the file)
+  if (is.character(url)) { 
+    if (dest == "") { # if the dest param is empty the function define the path at the project's root
       path <- paste0(here(),
                      "/",
                      str_extract(url, "[^https?://][^/]*"),
                      "_",
                      basename(url))
       return(path)
-    } else{
+    } else{ # if the dest param is NOT empty the function define the path to the project's subdirectory as in dest
       path <- paste0(here(dest),
                      "/",
                      str_extract(url, "[^https?://][^/]*"),
@@ -20,27 +20,28 @@ page_name <- function(url, dest = "") {
    }
 }
 
-get_page <- function(url, dest = "") {
+get_page <- function(url, dest = "") { #function for donwload file from a list of URLs checking the http requesto status code. 
     i <- 0
     for (i in 1:length(url)) {
       url_step <- url[i]
       httpReq <- GET(url_step)
       code <- status_code(httpReq)
-       if (code == 200) {
+       if (code == 200) { #if status code is OK 
+         # download the file with the filename and path defined with page_name() funtion 
          download.file(url = url_step,
                        destfile = page_name(url_step,
                                             dest))
-      } else if (code == 404) {
+      } else if (code == 404) { #if status code is Not Found
         cat("Bad luck. Error ",
             code,
-            " Resource not avaible :(",
+            " Resource not found! :(",
             sep = "")
-       } else {
+       } else { #for every other status code report a generic error.
          cat("Error ",
              code,
              ". Check your URL!",
              sep = "")
        }
-      Sys.sleep(2)
+      Sys.sleep(2) #since the function can take list of URLs, sleep every index change for politeness
     }
 }
