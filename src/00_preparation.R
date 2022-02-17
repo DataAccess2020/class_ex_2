@@ -1,0 +1,5 @@
+library(tidyverse)
+library(rvest)
+library(httr)
+library(curl)
+library(here)
