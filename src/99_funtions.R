@@ -20,17 +20,25 @@ page_name <- function(url, dest = "") {  #funtion for defining the path and file
    }
 }
 
-get_page <- function(url, dest = "") { #function for donwload file from a list of URLs checking the http requesto status code. 
+get_page <- function(url, dest = "", my_email = "", agent = F) { #function for donwload file from a list of URLs checking the http requesto status code. 
+    stopifnot(is.logical(agent))
+    UA <- ifelse(agent == FALSE, "", R.Version()$version.string)
+    
     i <- 0
     for (i in 1:length(url)) {
       url_step <- url[i]
-      httpReq <- GET(url_step)
+      httpReq <- GET(url_step,
+                     add_headers(
+                       From = my_email, 
+                       `User-Agent` = UA
+                       ))
       code <- status_code(httpReq)
        if (code == 200) { #if status code is OK 
          # download the file with the filename and path defined with page_name() funtion 
-         download.file(url = url_step,
-                       destfile = page_name(url_step,
-                                            dest))
+         bin <- content(httpReq,
+                        as = "raw")
+         writeBin(object = bin,
+                  con = page_name(url = url_step, dest))
       } else if (code == 404) { #if status code is Not Found
         cat("Bad luck. Error ",
             code,
