@@ -1,6 +1,6 @@
 # Page_name defines  path and filename from the hostname and the basename 
 # (it chops out the path included between the host and the file)
-page_name <- function(url, dest = "") {
+page_name <- function(url, dest = "", filetype = ".html") {
   if (is.character(url)) { 
     if (dest == "") { 
       #if the dest param is empty page_name define  path at the project's root
@@ -8,7 +8,8 @@ page_name <- function(url, dest = "") {
                      "/",
                      stringr::str_extract(url, "[^https?://][^/]*"),
                      "_",
-                     basename(url))
+                     basename(url),
+                     filetype)
       return(path)
     } else{ 
       #if the dest param is NOT empty the function define 
@@ -17,7 +18,8 @@ page_name <- function(url, dest = "") {
                      "/",
                      stringr::str_extract(url, "[^https?://][^/]*"),
                      "_",
-                     basename(url))
+                     basename(url),
+                     filetype)
       return(path)
     }
   } else{
@@ -26,7 +28,7 @@ page_name <- function(url, dest = "") {
 }
 
 
-get_page <- function(url, dest = "", my_email = "", agent = F) { 
+get_page <- function(url, dest = "", my_email = "", agent = F, filetype = ".html") { 
   # Donwload file from a list of URLs controlling for http status code. 
     stopifnot(is.logical(agent))
     UA <- ifelse(agent == FALSE, "", R.Version()$version.string)
@@ -49,7 +51,7 @@ get_page <- function(url, dest = "", my_email = "", agent = F) {
          bin <- httr::content(httpReq,
                         as = "raw")
          writeBin(object = bin,
-                  con = page_name(url = url_step, dest))
+                  con = page_name(url = url_step, dest, filetype))
       } else if (code == 404) { # If status code is Not Found
         cat("Bad luck. Error ",
             code,
