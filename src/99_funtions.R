@@ -1,28 +1,44 @@
 # Page_name defines  path and filename from the hostname and the basename 
 # (it chops out the path included between the host and the file)
 page_name <- function(url, dest = "", filetype = ".html") {
-  if (is.character(url)) { 
+  if (is.character(url)) {
+    name <- stringr::str_extract(url, "[^https?://][^/]*")
+    filename <- paste0("/",
+                       name,
+                       "_",
+                       basename(url),
+                       filetype)
     if (dest == "") { 
       #if the dest param is empty page_name define  path at the project's root
+      if (name == basename(url)) {
       path <- paste0(here::here(),
                      "/",
-                     stringr::str_extract(url, "[^https?://][^/]*"),
-                     "_",
                      basename(url),
                      filetype)
+      } 
+      else {
+        path <- paste0(here::here(),
+                       filename)
+      } 
       return(path)
-    } else{ 
+    } 
+    else{ 
       #if the dest param is NOT empty the function define 
       #the path to the project's subdirectory as in dest
-      path <- paste0(here::here(dest),
-                     "/",
-                     stringr::str_extract(url, "[^https?://][^/]*"),
-                     "_",
-                     basename(url),
-                     filetype)
+      if (name == basename(url)) {
+        path <- paste0(here::here(),
+                       "/",
+                       basename(url),
+                       filetype)
+      } 
+      else {
+        path <- paste0(here::here(),
+                       filename)
+      } 
       return(path)
     }
-  } else{
+  } 
+  else{
     cat("Not a string!")
    }
 }
