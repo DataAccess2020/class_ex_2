@@ -12,7 +12,6 @@ page_name <- function(url, dest = "", filetype = ".html") {
       #if the dest param is empty page_name define  path at the project's root
       if (name == basename(url)) {
       path <- paste0(here::here(),
-                     "/",
                      basename(url),
                      filetype)
       } 
@@ -22,17 +21,17 @@ page_name <- function(url, dest = "", filetype = ".html") {
       } 
       return(path)
     } 
-    else{ 
+    else if (dest != ""){ 
       #if the dest param is NOT empty the function define 
       #the path to the project's subdirectory as in dest
       if (name == basename(url)) {
-        path <- paste0(here::here(),
+        path <- paste0(here::here(dest),
                        "/",
                        basename(url),
                        filetype)
       } 
       else {
-        path <- paste0(here::here(),
+        path <- paste0(here::here(dest),
                        filename)
       } 
       return(path)
