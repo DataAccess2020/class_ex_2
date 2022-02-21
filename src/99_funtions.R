@@ -12,6 +12,7 @@ page_name <- function(url, dest = "", filetype = ".html") {
       #if the dest param is empty page_name define  path at the project's root
       if (name == basename(url)) {
       path <- paste0(here::here(),
+                     "/",
                      basename(url),
                      filetype)
       } 
