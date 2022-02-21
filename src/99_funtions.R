@@ -44,9 +44,10 @@ page_name <- function(url, dest = "", filetype = ".html") {
 }
 
 
-get_page <- function(url, dest = "", my_email = "", agent = F, filetype = ".html") { 
+get_page <- function(url, dest = "", my_email = "", agent = F, filetype = ".html", scrapeText = F) { 
   # Donwload file from a list of URLs controlling for http status code. 
     stopifnot(is.logical(agent))
+    stopifnot(is.logical(scrapeText))
     UA <- ifelse(agent == FALSE, "", R.Version()$version.string)
     
     
@@ -59,7 +60,7 @@ get_page <- function(url, dest = "", my_email = "", agent = F, filetype = ".html
                        `User-Agent` = UA
                        ))
       code <- httr::status_code(httpReq)
-       
+      
       
       # If status code is OK then:
       # download file with the filename and path as in page_name 
@@ -68,6 +69,13 @@ get_page <- function(url, dest = "", my_email = "", agent = F, filetype = ".html
                         as = "raw")
          writeBin(object = bin,
                   con = page_name(url = url_step, dest, filetype))
+         #Scrape the main text if specified 
+         if (scrapeText == T | code == 200) {
+           assign(basename(url_step), 
+                  read_html(httpReq), 
+                  envir = parent.frame())
+         }
+        
       } else if (code == 404) { # If status code is Not Found
         cat("Bad luck. Error ",
             code,
@@ -81,6 +89,7 @@ get_page <- function(url, dest = "", my_email = "", agent = F, filetype = ".html
        }
       
       # Sleep every round!
-      Sys.sleep(2) 
+      Sys.sleep(2)
+      
     }
 }

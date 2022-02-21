@@ -6,7 +6,7 @@ archive <- "https://beppegrillo.it/category/archivio/2016/page/"
 my_email <- "francesco.catalfamo@studenti.unimi.it"
 
 
-link_list <- ""
+link_list <- vector()  
 for (i in 1:47) {
   step <- paste0(archive, i)
   page <- httr::GET(url = step, 
@@ -22,9 +22,10 @@ for (i in 1:47) {
  Sys.sleep(2)
 }
 
-link_list <- link_list[-(1)]
 
+#Download all 2016 post in a polite way and alongside scrape the text from the page 
 get_page(url = link_list, 
          dest = "data",
-         agent = T)
-
+         my_email = my_email,
+         agent = T,
+         scrapeText = T) 
