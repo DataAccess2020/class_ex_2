@@ -22,3 +22,9 @@ for (i in 1:47) {
  Sys.sleep(2)
 }
 
+link_list <- link_list[-(1)]
+
+get_page(url = link_list, 
+         dest = "data",
+         agent = T)
+
