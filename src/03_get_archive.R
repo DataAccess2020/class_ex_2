@@ -1,12 +1,16 @@
+
+# Variables preparation ----------------------------------------------------
+
 css <- ".td_module_10"
 css2 <- ".entry-title.td-module-title a"
 
-i <- 1
 archive <- "https://beppegrillo.it/category/archivio/2016/page/"
-my_email <- "francesco.catalfamo@studenti.unimi.it"
+my_email <- "test@test.com"
+link_list <- vector()
 
+# Link scraping loop  ----------------------------------------------------------
 
-link_list <- vector()  
+i <- 1
 for (i in 1:47) {
   step <- paste0(archive, i)
   page <- httr::GET(url = step, 
@@ -22,8 +26,9 @@ for (i in 1:47) {
  Sys.sleep(2)
 }
 
+# Archive download --------------------------------------------------------
 
-#Download all 2016 post in a polite way and alongside scrape the text from the page 
+#We will download all 2016 post in a polite way and alongside scrape the text from the page 
 get_page(url = link_list, 
          dest = "data",
          my_email = my_email,

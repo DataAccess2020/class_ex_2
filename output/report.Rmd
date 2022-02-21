@@ -1,0 +1,150 @@
+---
+title: "Class Exercise #2"
+author: "Nicola Casarin & Francesco Catalfamo"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+In this short paper, we expose the workflow we built in order to complete the second class exercise of the Data Access and Regulation class.
+Our goal was to implement the learned scraping techniques in a real-life scenario. The selected scraping target were the posts published during 2016 onto [Beppe Grillo's blog](https://beppegrillo.it/).
+
+The team is composed of [Nicola Casarin](https://github.com/n-oise) and [Francesco Catalfamo](https://github.com/FCatalfamo).
+
+## Tasks and Resolutions
+
+#### Preparation
+
+For our work we used six main packages:
+
+```{r Preparation, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(rvest)
+library(httr)
+library(curl)
+library(here)
+library(stringr)
+```
+
+Furthermore, in order to simplify the workflow we defined two functions: get_page() and page_name().
+
+The first function scrape sites in a polite way and takes six arguments. *url*, a character vector with length 1 or more containing the links; *dest*, for defining the downloading path; *my_email*, for defining the scraper mail; *agent*, a logical if **TRUE** return the User Agent; *filetype*, for defining the output file type; lastly the *scrapeText*, a logical if **TRUE** scrape the download HTML content and assign it to an object.
+
+```{r get_page}
+
+get_page <- function(url, dest = "", my_email = "", agent = F, filetype = ".html", scrapeText = F) { 
+  # Donwload file from a list of URLs controlling for http status code. 
+    stopifnot(is.logical(agent))
+    stopifnot(is.logical(scrapeText))
+    UA <- ifelse(agent == FALSE, "", R.Version()$version.string)
+    
+    
+    i <- 0
+    for (i in 1:length(url)) {
+      url_step <- url[i]
+      httpReq <- httr::GET(url_step,
+                     httr::add_headers(
+                       From = my_email, 
+                       `User-Agent` = UA
+                       ))
+      code <- httr::status_code(httpReq)
+      
+      
+      # If status code is OK then:
+      # download file with the filename and path as in page_name 
+      if (code == 200) {
+         bin <- httr::content(httpReq,
+                        as = "raw")
+         writeBin(object = bin,
+                  con = page_name(url = url_step, dest, filetype))
+         #Scrape the main text if specified 
+         if (scrapeText == T | code == 200) {
+           assign(basename(url_step), 
+                  read_html(httpReq), 
+                  envir = parent.frame())
+         }
+        
+      } else if (code == 404) { # If status code is Not Found
+        cat("Bad luck. Error ",
+            code,
+            " Resource not found! :(",
+            sep = "")
+       } else { # For every other status code report a generic error.
+         cat("Error ",
+             code,
+             ". Check your URL!",
+             sep = "")
+       }
+      
+      # Sleep every round!
+      Sys.sleep(2)
+      
+    }
+}
+```
+
+The latter function is used inside the *get_page()* function and permits to defining the file name from the hostname and the basename. The function takes three arguments defined in the main *get_page()* function.
+
+```{r page_name()}
+page_name <- function(url, dest = "", filetype = ".html") {
+  if (is.character(url)) {
+    name <- stringr::str_extract(url, "[^https?://][^/]*")
+    filename <- paste0("/",
+                       name,
+                       "_",
+                       basename(url),
+                       filetype)
+    if (dest == "") { 
+      #if the dest param is empty page_name define  path at the project's root
+      if (name == basename(url)) {
+      path <- paste0(here::here(),
+                     "/",
+                     basename(url),
+                     filetype)
+      } 
+      else {
+        path <- paste0(here::here(),
+                       filename)
+      } 
+      return(path)
+    } 
+    else if (dest != ""){ 
+      #if the dest param is NOT empty the function define 
+      #the path to the project's subdirectory as in dest
+      if (name == basename(url)) {
+        path <- paste0(here::here(dest),
+                       "/",
+                       basename(url),
+                       filetype)
+      } 
+      else {
+        path <- paste0(here::here(dest),
+                       filename)
+      } 
+      return(path)
+    }
+  } 
+  else{
+    cat("Not a string!")
+   }
+}
+```
+
+#### Task #1: Inspect the Robots.txt
+
+
+#### Task #2: Download the page in a polite way
+
+
+#### Task #3: Create a dataframe with all the links in the downloaded page
+
+#### Task #4: Download and scrape all the 2016 posts
+
+#### Task #5: Sketch a spider scraper
+
+## Contributions
+

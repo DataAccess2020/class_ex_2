@@ -1,3 +1,5 @@
+# page_name() function ----------------------------------------------------
+
 # Page_name defines  path and filename from the hostname and the basename 
 # (it chops out the path included between the host and the file)
 page_name <- function(url, dest = "", filetype = ".html") {
@@ -43,6 +45,7 @@ page_name <- function(url, dest = "", filetype = ".html") {
    }
 }
 
+# get_page() function  ----------------------------------------------------
 
 get_page <- function(url, dest = "", my_email = "", agent = F, filetype = ".html", scrapeText = F) { 
   # Donwload file from a list of URLs controlling for http status code. 
