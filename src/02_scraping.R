@@ -20,7 +20,6 @@ df_links <- tibble(
   link = ""
 )
 
-
 #for loop appending the chr vector of links to the df
 for (i in 1:length(extract_links)) {
   df_links <- rbind(df_links, extract_links[i])

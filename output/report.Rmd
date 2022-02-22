@@ -151,7 +151,6 @@ The function return 404 error which mean that beppegrillo.it blog does not have 
 
 ```{r}
 # Variables preparation ---------------------------------------------------
-
 mare <- "https://beppegrillo.it/un-mare-di-plastica-ci-sommergera/"
 email <-  "test@test.com"
 UA <-  R.Version()$version.string
@@ -168,13 +167,76 @@ Since there are many ways to download pages using R from the web, to download th
 #### Task #3: Create a dataframe with all the links in the downloaded page
 
 ```{r}
+#extraction of all link in the webpage
+extract_links  <- read_html(site) %>% 
+  html_elements(xpath = "//a/@href") %>% 
+  html_text()
 
+#creating empty df_links
+df_links <- tibble(
+  link = ""
+)
+
+#for loop appending the chr vector of links to the df
+for (i in 1:length(extract_links)) {
+  df_links <- rbind(df_links, extract_links[i])
+}
+df_links <- df_links %>% 
+  transmute(link = str_extract(df_links$link, pattern = "^https?://beppegrillo.it/.*")) %>% 
+  filter(!is.na(link)) %>%
+  unique(.)
 ``` 
+
+To extract all the links from the page, we use *rvest* package. The *html_elements()* permits us to extract specific elements from the file with the specified path.
+To take the links which point to beppegrillo host site we make a for loop and then use *dplyr* package to clean the resulting data frame.
+The regular expression used for extracting the links is ```^https?://beppegrillo.it/.*```.
+The page contained 29 unique URLs.
 
 #### Task #4: Download and scrape all the 2016 posts
 ```{r}
+# Variables preparation ----------------------------------------------------
+css <- ".td_module_10"
+css2 <- ".entry-title.td-module-title a"
 
+archive <- "https://beppegrillo.it/category/archivio/2016/page/"
+my_email <- "test@test.com"
+link_list <- vector()
+```
+
+To download all the 2016 posts we need to define the correct css selectors (*css*, *css2*) and the archive's page basic pattern.
+
+```{r eval=FALSE}
+# Link scraping loop  ----------------------------------------------------------
+i <- 1
+for (i in 1:47) {
+  step <- paste0(archive, i)
+  page <- httr::GET(url = step, 
+            add_headers(
+              From = my_email, 
+              `User-Agent` = R.Version()$version.string
+            ))
+ links <-  content(page) %>%
+    html_elements(css) %>%
+    html_elements(css2) %>%
+    html_attr(name = "href") 
+ link_list <- append(x = link_list, values = links)
+ Sys.sleep(2)
+}
 ``` 
+
+To get all the links we defined a for loop which went through all the 47 archive pages. After *GET* function, the loop extracted the posts links with two consecutive *html_elements* functions. Lastly, for all of the 47 pages we appended the links to *link_list* object.
+
+```{undefined eval=FALSE, include=FALSE}
+# Archive download --------------------------------------------------------
+#We will download all 2016 post in a polite way and alongside scrape the text from the page 
+get_page(url = link_list, 
+         dest = "data",
+         my_email = my_email,
+         agent = T,
+         scrapeText = T) 
+``` 
+
+We used the *get_page* function to download all the pages from the previous defined *link_list*. With the scrape text argument, we had scraped the main text into an object in the R environment. 
 
 #### Task #5: Sketch a spider scraper
 ```{r}

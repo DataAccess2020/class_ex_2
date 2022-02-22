@@ -520,13 +520,76 @@ UA &lt;-  R.Version()$version.string
 #download site with specified headers
 site &lt;- RCurl::getURL(mare, 
                       httpheader = c(From = email, `User-Agent` = UA))</code></pre>
+<p>Since there are many ways to download pages using R from the web, to
+download the targeted one we use <em>getURL()</em> from <em>RCurl</em>
+package. The page is stored in a R object named <em>site</em>.</p>
 </div>
 <div id="task-3-create-a-dataframe-with-all-the-links-in-the-downloaded-page" class="section level4">
 <h4>Task #3: Create a dataframe with all the links in the downloaded
 page</h4>
+<pre class="r"><code>#extraction of all link in the webpage
+extract_links  &lt;- read_html(site) %&gt;% 
+  html_elements(xpath = &quot;//a/@href&quot;) %&gt;% 
+  html_text()
+
+#creating empty df_links
+df_links &lt;- tibble(
+  link = &quot;&quot;
+)
+
+#for loop appending the chr vector of links to the df
+for (i in 1:length(extract_links)) {
+  df_links &lt;- rbind(df_links, extract_links[i])
+}
+df_links &lt;- df_links %&gt;% 
+  transmute(link = str_extract(df_links$link, pattern = &quot;^https?://beppegrillo.it/.*&quot;)) %&gt;% 
+  filter(!is.na(link)) %&gt;%
+  unique(.)</code></pre>
+<p>To extract all the links from the page, we use <em>rvest</em>
+package. The <em>html_elements()</em> permits us to extract specific
+elements from the file with the specified path. To take the links which
+point to beppegrillo host site we make a for loop and then use
+<em>dplyr</em> package to clean the resulting data frame. The regular
+expression used for extracting the links is
+<code>^https?://beppegrillo.it/.*</code>. The page contained 29 unique
+URLs.</p>
 </div>
 <div id="task-4-download-and-scrape-all-the-2016-posts" class="section level4">
 <h4>Task #4: Download and scrape all the 2016 posts</h4>
+<pre class="r"><code># Variables preparation ----------------------------------------------------
+
+css &lt;- &quot;.td_module_10&quot;
+css2 &lt;- &quot;.entry-title.td-module-title a&quot;
+
+archive &lt;- &quot;https://beppegrillo.it/category/archivio/2016/page/&quot;
+my_email &lt;- &quot;test@test.com&quot;
+link_list &lt;- vector()</code></pre>
+<pre class="r"><code># Link scraping loop  ----------------------------------------------------------
+
+i &lt;- 1
+for (i in 1:47) {
+  step &lt;- paste0(archive, i)
+  page &lt;- httr::GET(url = step, 
+            add_headers(
+              From = my_email, 
+              `User-Agent` = R.Version()$version.string
+            ))
+ links &lt;-  content(page) %&gt;%
+    html_elements(css) %&gt;%
+    html_elements(css2) %&gt;%
+    html_attr(name = &quot;href&quot;) 
+ link_list &lt;- append(x = link_list, values = links)
+ Sys.sleep(2)
+}
+
+# Archive download --------------------------------------------------------
+
+#We will download all 2016 post in a polite way and alongside scrape the text from the page 
+get_page(url = link_list, 
+         dest = &quot;data&quot;,
+         my_email = my_email,
+         agent = T,
+         scrapeText = T) </code></pre>
 </div>
 <div id="task-5-sketch-a-spider-scraper" class="section level4">
 <h4>Task #5: Sketch a spider scraper</h4>
