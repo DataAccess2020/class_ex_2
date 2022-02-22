@@ -237,6 +237,7 @@ get_page(url = link_list,
 ``` 
 
 We used the *get_page* function to download all the pages from the previous defined *link_list*. With the scrape text argument, we had scraped the main text into an object in the R environment. 
+If we donwolad a page that does not contains any text we will download just the raw content. For instance, if a page contains just an imagine we will download its raw representation. 
 
 #### Task #5: Sketch a spider scraper
 ```{r}
@@ -244,4 +245,8 @@ We used the *get_page* function to download all the pages from the previous defi
 ``` 
 
 ## Contributions
+
+For this project we had made 26 commits, 3 active pull requests and 7 active issues.
+Francesco has made 10 commits.
+Nicola has made 16 commits.
 
