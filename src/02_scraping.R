@@ -1,4 +1,3 @@
-
 # Variables preparation ---------------------------------------------------
 
 mare <- "https://beppegrillo.it/un-mare-di-plastica-ci-sommergera/"
