@@ -1,11 +1,14 @@
 ---
 title: "Class Exercise #2"
-author: "Nicola Casarin & Francesco Catalfamo"
+author:
+  - Catalfamo Francesco
+  - Casarin Nicola
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = T, tidy = TRUE)
+library(formatR)
 ```
 
 ## Introduction
@@ -34,7 +37,7 @@ Furthermore, in order to simplify the workflow we defined two functions: get_pag
 
 The first function scrape sites in a polite way and takes six arguments. *url*, a character vector with length 1 or more containing the links; *dest*, for defining the downloading path; *my_email*, for defining the scraper mail; *agent*, a logical if **TRUE** return the User Agent; *filetype*, for defining the output file type; lastly the *scrapeText*, a logical if **TRUE** scrape the download HTML content and assign it to an object.
 
-```{r get_page}
+```{r get_page fun}
 get_page <- function(url, dest = "", my_email = "", agent = F, filetype = ".html", scrapeText = F) { 
   # Donwload file from a list of URLs controlling for http status code. 
     stopifnot(is.logical(agent))
@@ -86,9 +89,9 @@ get_page <- function(url, dest = "", my_email = "", agent = F, filetype = ".html
 }
 ```
 
-The latter function is used inside the *get_page()* function and permits to defining the file name from the hostname and the basename. The function takes three arguments defined in the main *get_page()* function.
+The latter function is used inside the `get_page()` function and permits to defining the file name from the hostname and the basename. The function takes three arguments defined in the main `get_page()` function.
 
-```{r page_name()}
+```{r page_name fun}
 page_name <- function(url, dest = "", filetype = ".html") {
   if (is.character(url)) {
     name <- stringr::str_extract(url, "[^https?://][^/]*")
@@ -135,7 +138,7 @@ page_name <- function(url, dest = "", filetype = ".html") {
 
 #### Task #1: Inspect the Robots.txt
 
-```{r}
+```{r Robots Inspection, cache=TRUE}
 grillo <- 'https://beppegrillo.it/robots.txt'
 
 get_page(grillo, 
@@ -144,12 +147,12 @@ get_page(grillo,
          agent = T)
 ```         
 
-To inspect the robots.txt we will use the *get_page()* function previously definied.
+To inspect the robots.txt we will use the `get_page()` function previously defined.
 The function return 404 error which mean that beppegrillo.it blog does not have a robots.txt rules. For that reason, we will able to scrape all the site using a polite method. 
 
 #### Task #2: Download the page in a polite way
 
-```{r}
+```{r target download, eval=FALSE}
 # Variables preparation ---------------------------------------------------
 mare <- "https://beppegrillo.it/un-mare-di-plastica-ci-sommergera/"
 email <-  "test@test.com"
@@ -162,11 +165,11 @@ site <- RCurl::getURL(mare,
                       httpheader = c(From = email, `User-Agent` = UA))
 ```    
 
-Since there are many ways to download pages using R from the web, to download the targeted one we use *getURL()* from *RCurl* package. The page is stored in a R object named *site*. 
+Since there are many ways to download pages using R from the web, to download the targeted one we use `getURL()` from `RCurl` package. The page is stored in a R object named *site*. 
 
 #### Task #3: Create a dataframe with all the links in the downloaded page
 
-```{r}
+```{r Links extraction, eval=FALSE}
 #extraction of all link in the webpage
 extract_links  <- read_html(site) %>% 
   html_elements(xpath = "//a/@href") %>% 
@@ -187,13 +190,13 @@ df_links <- df_links %>%
   unique(.)
 ``` 
 
-To extract all the links from the page, we use *rvest* package. The *html_elements()* permits us to extract specific elements from the file with the specified path.
-To take the links which point to beppegrillo host site we make a for loop and then use *dplyr* package to clean the resulting data frame.
-The regular expression used for extracting the links is ```^https?://beppegrillo.it/.*```.
+To extract all the links from the page, we use `rvest` package. The `html_elements()` permits us to extract specific elements from the file with the specified path.
+To take all links which point to beppegrillo.it site, we make a for loop and then use `dplyr` package to clean the resulting data frame.
+The regular expression used for extracting the links is `^https?://beppegrillo.it/.*`.
 The page contained 29 unique URLs.
 
 #### Task #4: Download and scrape all the 2016 posts
-```{r}
+```{r variable def, eval=FALSE}
 # Variables preparation ----------------------------------------------------
 css <- ".td_module_10"
 css2 <- ".entry-title.td-module-title a"
@@ -205,7 +208,7 @@ link_list <- vector()
 
 To download all the 2016 posts we need to define the correct css selectors (*css*, *css2*) and the archive's page basic pattern.
 
-```{r eval=FALSE}
+```{r for loop , eval=FALSE}
 # Link scraping loop  ----------------------------------------------------------
 i <- 1
 for (i in 1:47) {
@@ -224,9 +227,9 @@ for (i in 1:47) {
 }
 ``` 
 
-To get all the links we defined a for loop which went through all the 47 archive pages. After *GET* function, the loop extracted the posts links with two consecutive *html_elements* functions. Lastly, for all of the 47 pages we appended the links to *link_list* object.
+To get all the links we defined a for loop which went through all the 47 archive pages. After `GET()` function, the loop extracted the posts links with two consecutive `html_elements()` functions. Lastly, for all of the 47 pages we appended the links to *link_list* object.
 
-```{undefined eval=FALSE, include=FALSE}
+```{r archive download, eval=FALSE}
 # Archive download --------------------------------------------------------
 #We will download all 2016 post in a polite way and alongside scrape the text from the page 
 get_page(url = link_list, 
@@ -236,17 +239,37 @@ get_page(url = link_list,
          scrapeText = T) 
 ``` 
 
-We used the *get_page* function to download all the pages from the previous defined *link_list*. With the scrape text argument, we had scraped the main text into an object in the R environment. 
-If we donwolad a page that does not contains any text we will download just the raw content. For instance, if a page contains just an imagine we will download its raw representation. 
+We used the `get_page()` function to download all the pages from the previous defined *link_list*. With the scrape text argument, we had scraped the main text into an object in the R environment. 
+If we download a page that does not contains any text we will download just the raw content. For instance, if a page contains just an imagine we will download its raw representation. 
 
 #### Task #5: Sketch a spider scraper
-```{r}
 
-``` 
+A crawler is an automatic function that retrieves, scrapes and indexes all URLs from target hosts or from all over the web. 
+In fact, like a spider, it can move through the web's complexities.
+The scraper web build differs from RCrawler basically because the latter is scalable and adaptable to different situations and targets.
+Our scraper is tailor-made for one purpose on one particular target adapt it to another drive or target would mean rewrite it.  
+Only get_name() could be used on other targets, but its behaviour is more general and does not have crawl functions. 
+Conversely, Rcrawler is highly scalable and could adapt to many different purposes. 
+In order to use it as a crawler/web spider, we would rely upon its main function `Rcrawler()`. As arguments we would define:
+
+* `website = https://beppegrillo.it`: the root URL
+* `RequestDelay = 2`: to set a delay of 2 seconds for not overload the target
+* `Useragent = R.Version()$version.string`: to declare our useragent
+* `Obeyrobots = TRUE`: instruct the crawler to respect the robots.txt, if present, for the defined Useragent
+* `no_cores = 4`: specify to use 4 cpu cores to get a balanced speed --- network load ratio 
+* `DIR = here::here(data)`: to define the path where all crawled data will be stored
+
+With these six arguments will be able to scrape all the sites politely with a single powerful function.
+The crawler will scrape the hyperlinks starting from the root URL declared. 
+
 
 ## Contributions
 
 For this project we had made 26 commits, 3 active pull requests and 7 active issues.
-Francesco has made 10 commits.
-Nicola has made 16 commits.
+
+Author  | Contributions
+------------- | -------------
+Francesco    | 10
+Nicola        | 16
+
 
