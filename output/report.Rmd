@@ -35,7 +35,6 @@ Furthermore, in order to simplify the workflow we defined two functions: get_pag
 The first function scrape sites in a polite way and takes six arguments. *url*, a character vector with length 1 or more containing the links; *dest*, for defining the downloading path; *my_email*, for defining the scraper mail; *agent*, a logical if **TRUE** return the User Agent; *filetype*, for defining the output file type; lastly the *scrapeText*, a logical if **TRUE** scrape the download HTML content and assign it to an object.
 
 ```{r get_page}
-
 get_page <- function(url, dest = "", my_email = "", agent = F, filetype = ".html", scrapeText = F) { 
   # Donwload file from a list of URLs controlling for http status code. 
     stopifnot(is.logical(agent))
@@ -136,15 +135,51 @@ page_name <- function(url, dest = "", filetype = ".html") {
 
 #### Task #1: Inspect the Robots.txt
 
+```{r}
+grillo <- 'https://beppegrillo.it/robots.txt'
+
+get_page(grillo, 
+         dest = "data", 
+         my_email = "test@test.com",
+         agent = T)
+```         
+
+To inspect the robots.txt we will use the *get_page()* function previously definied.
+The function return 404 error which mean that beppegrillo.it blog does not have a robots.txt rules. For that reason, we will able to scrape all the site using a polite method. 
 
 #### Task #2: Download the page in a polite way
 
+```{r}
+# Variables preparation ---------------------------------------------------
+
+mare <- "https://beppegrillo.it/un-mare-di-plastica-ci-sommergera/"
+email <-  "test@test.com"
+UA <-  R.Version()$version.string
+
+# Links scraping on the target page ---------------------------------------
+
+#download site with specified headers
+site <- RCurl::getURL(mare, 
+                      httpheader = c(From = email, `User-Agent` = UA))
+```    
+
+Since there are many ways to download pages using R from the web, to download the targeted one we use *getURL()* from *RCurl* package. The page is stored in a R object named *site*. 
 
 #### Task #3: Create a dataframe with all the links in the downloaded page
 
+```{r}
+
+``` 
+
 #### Task #4: Download and scrape all the 2016 posts
+```{r}
+
+``` 
 
 #### Task #5: Sketch a spider scraper
+```{r}
+
+``` 
 
 ## Contributions
 
